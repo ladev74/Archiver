@@ -54,19 +54,18 @@ func Test_encodeBin(t *testing.T) {
 	}
 }
 
-func Test_splitBychunks(t *testing.T) {
+func Test_splitByChunks(t *testing.T) {
 	type args struct {
 		bStr      string
 		chunkSize int
 	}
-
 	tests := []struct {
 		name string
 		args args
 		want BinaryChunks
 	}{
 		{
-			name: "first test",
+			name: "base name",
 			args: args{
 				bStr:      "001000100110100101",
 				chunkSize: 8,
@@ -76,9 +75,50 @@ func Test_splitBychunks(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := splitByChunks(tt.args.bStr, tt.args.chunkSize); reflect.DeepEqual(got, tt.want) {
-				//t.Errorf("prepareText() = #{got}, want#{tt.want}")
-				t.Errorf("splitByChunks() = got %v, want %v", got, tt.want)
+			if got := splitByChunks(tt.args.bStr, tt.args.chunkSize); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("splitByChunks() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestBinaryChunks_ToHex(t *testing.T) {
+	tests := []struct {
+		name string
+		bcs  BinaryChunks
+		want HexChunks
+	}{
+		{
+			name: "first test",
+			bcs:  BinaryChunks{"0101111", "10000000"},
+			want: HexChunks{"2F", "80"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.bcs.ToHex(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ToHex() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_Encode(t *testing.T) {
+	tests := []struct {
+		name string
+		str  string
+		want string
+	}{
+		{
+			name: "first test",
+			str:  "My name is Ted",
+			want: "20 30 3C 18 77 4A E4 4D 28",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := Encode(tt.str); got != string(tt.want) {
+				t.Errorf("ToHex() = %v, want %v", got, tt.want)
 			}
 		})
 	}
