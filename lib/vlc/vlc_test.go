@@ -68,7 +68,28 @@ func Test_Encode(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := Encode(tt.str); got != string(tt.want) {
-				t.Errorf("ToHex() = %v, want %v", got, tt.want)
+				t.Errorf("Encode() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_Decode(t *testing.T) {
+	tests := []struct {
+		name        string
+		encodedText string
+		want        string
+	}{
+		{
+			name:        "first test",
+			encodedText: "20 30 3C 18 77 4A E4 4D 28",
+			want:        "My name is Ted",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := Decode(tt.encodedText); got != tt.want {
+				t.Errorf("Decode() = %v, want %v", got, tt.want)
 			}
 		})
 	}

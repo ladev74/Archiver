@@ -14,9 +14,11 @@ func Encode(str string) string {
 }
 
 func Decode(encodedText string) string {
-	hChunks := NewHexChunks(encodedText)
+	bStrings := NewHexChunks(encodedText).ToBinary().Join()
 
-	return ""
+	dTree := getEncodingTable().DecodingTree()
+
+	return exportText(dTree.Decode(bStrings))
 }
 
 func encodeBin(str string) string {
@@ -82,6 +84,31 @@ func prepareText(str string) string {
 			buf.WriteRune(unicode.ToLower(ch))
 		} else {
 			buf.WriteRune(ch)
+		}
+	}
+
+	return buf.String()
+}
+
+func exportText(str string) string {
+	var buf strings.Builder
+
+	var isCapital bool
+
+	for _, ch := range str {
+		if isCapital == true {
+			buf.WriteRune(unicode.ToUpper(ch))
+			isCapital = false
+
+			continue
+		}
+
+		if ch == '!' {
+			isCapital = true
+
+			continue
+		} else {
+			buf.WriteString(string(ch))
 		}
 	}
 
