@@ -1,7 +1,8 @@
 package cmd
 
 import (
-	"archiver/lib/comptession/vlc"
+	"archiver/lib/compression"
+	"archiver/lib/compression/vlc"
 	"io"
 	"os"
 	"path/filepath"
@@ -20,9 +21,20 @@ const (
 	unpackedExtension = "txt"
 )
 
-func unpack(_ *cobra.Command, args []string) {
+func unpack(cmd *cobra.Command, args []string) {
+	var decoder compression.Decoder
+
 	if len(args) == 0 || args[0] == "" {
 		handleErr(ErrEmptyPath)
+	}
+
+	method := cmd.Flag("method").Value.String()
+
+	switch method {
+	case "vlc":
+		decoder = vlc.New()
+	default:
+		cmd.PrintErr("unknown method")
 	}
 
 	filePath := args[0]
@@ -39,7 +51,7 @@ func unpack(_ *cobra.Command, args []string) {
 		handleErr(err)
 	}
 
-	packed := vlc.Decode(data)
+	packed := decoder.Decode(data)
 
 	err = os.WriteFile(unpackedFileName(filePath), []byte(packed), 0644)
 	if err != nil {
@@ -55,4 +67,11 @@ func unpackedFileName(path string) string {
 
 func init() {
 	rootCmd.AddCommand(unpackCmd)
+
+	unpackCmd.Flags().StringP("method", "m", "", "decompression method: vlc")
+
+	if err := unpackCmd.MarkFlagRequired("method"); err != nil {
+		panic(err)
+	}
+
 }

@@ -1,7 +1,8 @@
 package cmd
 
 import (
-	"archiver/lib/comptession/vlc"
+	"archiver/lib/compression"
+	"archiver/lib/compression/vlc"
 	"errors"
 	"io"
 	"os"
@@ -23,9 +24,20 @@ const (
 
 var ErrEmptyPath = errors.New("path to file is not specified")
 
-func pack(_ *cobra.Command, args []string) {
+func pack(cmd *cobra.Command, args []string) {
+	var encoder compression.Encoder
+
 	if len(args) == 0 || args[0] == "" {
 		handleErr(ErrEmptyPath)
+	}
+
+	method := cmd.Flag("method").Value.String()
+
+	switch method {
+	case "vlc":
+		encoder = vlc.New()
+	default:
+		cmd.PrintErr("unknown method")
 	}
 
 	filePath := args[0]
@@ -42,7 +54,7 @@ func pack(_ *cobra.Command, args []string) {
 		handleErr(err)
 	}
 
-	packed := vlc.Encode(string(data))
+	packed := encoder.Encode(string(data))
 
 	err = os.WriteFile(packedFileName(filePath), packed, 0644)
 	if err != nil {
@@ -58,6 +70,7 @@ func packedFileName(path string) string {
 
 func init() {
 	rootCmd.AddCommand(packCmd)
+
 	packCmd.Flags().StringP("method", "m", "", "compression method: vlc")
 
 	if err := packCmd.MarkFlagRequired("method"); err != nil {
