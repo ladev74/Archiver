@@ -1,11 +1,12 @@
 package shannonfano
 
 import (
-	"archiver/lib/compression/vlc/table"
 	"fmt"
 	"math"
 	"sort"
 	"strings"
+
+	"archiver/lib/compression/vlc/table"
 )
 
 type Generator struct{}
@@ -27,7 +28,7 @@ type charStat map[rune]int
 
 func (g Generator) NewTable(text string) table.EncodingTable {
 
-	return  build(newCharStat(text)).Export()
+	return build(newCharStat(text)).Export()
 }
 
 func (et encodingTable) Export() map[rune]string {
@@ -56,7 +57,6 @@ func build(stat charStat) encodingTable {
 		})
 	}
 
-	//прочитать про сортировку в го
 	sort.Slice(codes, func(i, j int) bool {
 		if codes[i].Quanity != codes[j].Quanity {
 			return codes[i].Quanity > codes[j].Quanity
